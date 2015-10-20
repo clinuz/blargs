@@ -1,0 +1,22 @@
+{
+  "name": "blarg",
+  "version": "0.0.1",
+  "description": "A (very, very) simple command-line argument parser to be consumed by other tools.",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "babel --optional runtime -d lib src && jison -o lib/parser.js src/parser.jison"
+  },
+  "bin": {
+    "blarg": "lib/blarg.js"
+  },
+  "author": "W. Cole Davis <wcole.davis@gmail.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "babel-runtime": "^5.8.25"
+  },
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "jison": "^0.4.15"
+  }
+}
