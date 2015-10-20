@@ -3,6 +3,7 @@
 import { parser } from './parser';
 
 export default function (args) {
+	args = args || process.argv.slice(2);
 	if (Array.isArray(args)) args = recon(args);
 	return parser.parse(args);
 }
