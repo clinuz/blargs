@@ -4,7 +4,10 @@ import { parser } from './parser';
 
 export default function (args) {
 	args = args || process.argv.slice(2);
-	if (Array.isArray(args)) args = recon(args);
+	if (Array.isArray(args)) {
+		if (!args.length) return [];
+		args = recon(args);
+	}
 	return parser.parse(args);
 }
 
