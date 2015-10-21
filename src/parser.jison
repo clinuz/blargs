@@ -3,7 +3,7 @@
 single								[a-zA-Z0-9]{1}
 singles								[a-zA-Z0-9]{2,}
 ident									[a-zA-Z0-9]+?(?:'-'|[a-zA-Z0-9])*
-value									[^\s'"]+?(?=\b|$)
+value									[^\s'"]+
 
 %%
 
