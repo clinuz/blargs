@@ -21,6 +21,16 @@ suite('long-arguments', function () {
 		_chai.assert.isFalse(result.two);
 		_chai.assert.isFalse(result.three);
 	});
+	test('long-name boolean flags', function () {
+		var result = (0, _2['default'])('--one-thing --two-things');
+		_chai.assert.isTrue(result['one-thing']);
+		_chai.assert.isTrue(result['two-things']);
+	});
+	test('long-name negative boolean flags', function () {
+		var result = (0, _2['default'])('--no-one-thing --no-two-things');
+		_chai.assert.isFalse(result['one-thing']);
+		_chai.assert.isFalse(result['two-things']);
+	});
 	test('assignment', function () {
 		var result = (0, _2['default'])('--one=two --two="three four" --three=val,val,val');
 		_chai.assert.equal(result.one, 'two');
@@ -168,6 +178,27 @@ suite('subargs', function () {
 	});
 });
 
+suite('next-command arguments', function () {
+	test('next-command depth 1', function () {
+		var result = (0, _2['default'])('arg1 -- arg2 -x');
+		(0, _chai.assert)(Array.isArray(result['--']));
+		(0, _chai.assert)(result['--'].length === 1);
+		_chai.assert.equal(result.$[0], 'arg1');
+		_chai.assert.equal(result['--'][0].$[0], 'arg2');
+		_chai.assert.isTrue(result['--'][0].x);
+	});
+	test('next-command depth 2', function () {
+		var result = (0, _2['default'])('arg1 -- arg2 -x -- arg3 --end');
+		(0, _chai.assert)(Array.isArray(result['--']));
+		(0, _chai.assert)(result['--'].length === 2);
+		_chai.assert.equal(result.$[0], 'arg1');
+		_chai.assert.equal(result['--'][0].$[0], 'arg2');
+		_chai.assert.isTrue(result['--'][0].x);
+		_chai.assert.equal(result['--'][1].$[0], 'arg3');
+		_chai.assert.isTrue(result['--'][1].end);
+	});
+});
+
 suite('error recovery', function () {
 	test('short-argument with = assignment', function () {
 		var result = (0, _2['default'])('-Z=two');
@@ -195,5 +226,25 @@ suite('error recovery', function () {
 		var result = (0, _2['default'])('\'value\'\'');
 		(0, _chai.assert)(result.$.length === 1);
 		_chai.assert.equal(result.$[0], 'value');
+	});
+});
+
+suite('mixed cases', function () {
+	test('next-command and subargs', function () {
+		var result = (0, _2['default'])('-Z [ sub1 -x ] -- next1 -Z [ sub2 -no-x ]');
+		_chai.assert.deepEqual(result, {
+			$: [],
+			Z: {
+				$: ['sub1'],
+				x: true
+			},
+			'--': [{
+				$: ['next1'],
+				Z: {
+					$: ['sub2'],
+					x: false
+				}
+			}]
+		});
 	});
 });

@@ -14,6 +14,7 @@ export default {
 	*/
 	reset () {
 		stack = [new Arguments()];
+		nexts = undefined;
 	},
 
 	/*

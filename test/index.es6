@@ -16,6 +16,16 @@ suite('long-arguments', () => {
 		assert.isFalse(result.two);
 		assert.isFalse(result.three);
 	});
+	test('long-name boolean flags', () => {
+		let result = blarg('--one-thing --two-things');
+		assert.isTrue(result['one-thing']);
+		assert.isTrue(result['two-things']);
+	});
+	test('long-name negative boolean flags', () => {
+		let result = blarg('--no-one-thing --no-two-things');
+		assert.isFalse(result['one-thing']);
+		assert.isFalse(result['two-things']);
+	});
 	test('assignment', () => {
 		let result = blarg('--one=two --two="three four" --three=val,val,val');
 		assert.equal(result.one, 'two');
@@ -163,6 +173,27 @@ suite('subargs', () => {
 	});
 });
 
+suite('next-command arguments', () => {
+	test('next-command depth 1', () => {
+		let result = blarg('arg1 -- arg2 -x');
+		assert(Array.isArray(result['--']));
+		assert(result['--'].length === 1);
+		assert.equal(result.$[0], 'arg1');
+		assert.equal(result['--'][0].$[0], 'arg2');
+		assert.isTrue(result['--'][0].x);
+	});
+	test('next-command depth 2', () => {
+		let result = blarg('arg1 -- arg2 -x -- arg3 --end');
+		assert(Array.isArray(result['--']));
+		assert(result['--'].length === 2);
+		assert.equal(result.$[0], 'arg1');
+		assert.equal(result['--'][0].$[0], 'arg2');
+		assert.isTrue(result['--'][0].x);
+		assert.equal(result['--'][1].$[0], 'arg3');
+		assert.isTrue(result['--'][1].end);
+	});
+});
+
 suite('error recovery', () => {
 	test('short-argument with = assignment', () => {
 		let result = blarg('-Z=two');
@@ -190,5 +221,27 @@ suite('error recovery', () => {
 		let result = blarg('\'value\'\'');
 		assert(result.$.length === 1);
 		assert.equal(result.$[0], 'value');
+	});
+});
+
+suite('mixed cases', () => {
+	test('next-command and subargs', () => {
+		let result = blarg('-Z [ sub1 -x ] -- next1 -Z [ sub2 -no-x ]');
+		assert.deepEqual(result, {
+			$: [],
+			Z: {
+				$: ['sub1'],
+				x: true
+			},
+			'--': [
+				{
+					$: ['next1'],
+					Z: {
+						$: ['sub2'],
+						x: false
+					}
+				}
+			]
+		});
 	});
 });
