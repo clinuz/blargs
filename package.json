@@ -4,8 +4,8 @@
   "description": "A (very, very) simple command-line argument parser to be consumed by other tools.",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "babel --optional runtime -d lib src && jison -o lib/parser.js src/parser.jison"
+    "test": "mocha",
+    "prepublish": "babel --optional runtime -d lib src && babel --optional runtime -d test test && jison -o lib/parser.js src/parser.jison"
   },
   "bin": {
     "blarg": "lib/blarg.js"
@@ -17,6 +17,8 @@
   },
   "devDependencies": {
     "babel": "^5.8.23",
-    "jison": "^0.4.15"
+    "chai": "^3.4.0",
+    "jison": "^0.4.15",
+    "mocha": "^2.3.3"
   }
 }

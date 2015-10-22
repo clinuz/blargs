@@ -1,13 +1,17 @@
 'use strict';
 
 import { parser } from './parser';
+import scope from './scope';
+import Arguments from './Arguments';
 
 export default function (args) {
 	args = args || process.argv.slice(2);
 	if (Array.isArray(args)) {
-		if (!args.length) return [];
+		if (!args.length) return new Arguments();
 		args = recon(args);
 	}
+	parser.yy = scope;
+	scope.reset();
 	return parser.parse(args);
 }
 
