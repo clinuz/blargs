@@ -1,247 +1,263 @@
 'use strict';
 
 import { assert } from 'chai';
-import blarg from '../';
+import blargs from '../';
 
 suite('long-arguments', () => {
 	test('boolean flags', () => {
-		let result = blarg('--one --two --three');
-		assert.isTrue(result.one);
-		assert.isTrue(result.two);
-		assert.isTrue(result.three);
+		let [ args ] = blargs('--one --two --three');
+		assert.isTrue(args.one);
+		assert.isTrue(args.two);
+		assert.isTrue(args.three);
 	});
 	test('negative boolean flags', () => {
-		let result = blarg('--no-one --no-two --no-three');
-		assert.isFalse(result.one);
-		assert.isFalse(result.two);
-		assert.isFalse(result.three);
+		let [ args ] = blargs('--no-one --no-two --no-three');
+		assert.isFalse(args.one);
+		assert.isFalse(args.two);
+		assert.isFalse(args.three);
 	});
 	test('long-name boolean flags', () => {
-		let result = blarg('--one-thing --two-things');
-		assert.isTrue(result['one-thing']);
-		assert.isTrue(result['two-things']);
+		let [ args ] = blargs('--one-thing --two-things');
+		assert.isTrue(args['one-thing']);
+		assert.isTrue(args['two-things']);
 	});
 	test('long-name negative boolean flags', () => {
-		let result = blarg('--no-one-thing --no-two-things');
-		assert.isFalse(result['one-thing']);
-		assert.isFalse(result['two-things']);
+		let [ args ] = blargs('--no-one-thing --no-two-things');
+		assert.isFalse(args['one-thing']);
+		assert.isFalse(args['two-things']);
 	});
 	test('assignment', () => {
-		let result = blarg('--one=two --two="three four" --three=val,val,val');
-		assert.equal(result.one, 'two');
-		assert.equal(result.two, 'three four');
-		assert.equal(result.three, 'val,val,val');
+		let [ args ] = blargs('--one=two --two="three four" --three=val,val,val');
+		assert.equal(args.one, 'two');
+		assert.equal(args.two, 'three four');
+		assert.equal(args.three, 'val,val,val');
 	});
 	test('complex values', () => {
-		let result = blarg('--one=~`!@#$%^&*()-_+=:;{}[]123|\\/?456<>abcdef,.')
-		assert.equal(result.one, '~`!@#$%^&*()-_+=:;{}[]123|\\/?456<>abcdef,.');
+		let [ args ] = blargs('--one=~`!@#$%^&*()-_+=:;{}[]123|\\/?456<>abcdef,.')
+		assert.equal(args.one, '~`!@#$%^&*()-_+=:;{}[]123|\\/?456<>abcdef,.');
 	});
 });
 
 suite('short-arguments', () => {
 	test('boolean flags', () => {
-		let result = blarg('-o -n -e');
-		assert.isTrue(result.o);
-		assert.isTrue(result.n);
-		assert.isTrue(result.e);
+		let [ args ] = blargs('-o -n -e');
+		assert.isTrue(args.o);
+		assert.isTrue(args.n);
+		assert.isTrue(args.e);
 	});
 	test('multiple boolean flags', () => {
-		let result = blarg('-one');
-		assert.isTrue(result.o);
-		assert.isTrue(result.n);
-		assert.isTrue(result.e);
+		let [ args ] = blargs('-one');
+		assert.isTrue(args.o);
+		assert.isTrue(args.n);
+		assert.isTrue(args.e);
 	});
 	test('negative boolean flags', () => {
-		let result = blarg('-no-o -no-n -no-e');
-		assert.isFalse(result.o);
-		assert.isFalse(result.n);
-		assert.isFalse(result.e);
+		let [ args ] = blargs('-no-o -no-n -no-e');
+		assert.isFalse(args.o);
+		assert.isFalse(args.n);
+		assert.isFalse(args.e);
 	});
 	test('multiple negative boolean flags', () => {
-		let result = blarg('-no-one');
-		assert.isFalse(result.o);
-		assert.isFalse(result.n);
-		assert.isFalse(result.e);
+		let [ args ] = blargs('-no-one');
+		assert.isFalse(args.o);
+		assert.isFalse(args.n);
+		assert.isFalse(args.e);
 	});
 	test('assignment', () => {
-		let result = blarg('-o two -n "three four" -e val,val,val');
-		assert.equal(result.o, 'two');
-		assert.equal(result.n, 'three four');
-		assert.equal(result.e, 'val,val,val');
+		let [ args ] = blargs('-o two -n "three four" -e val,val,val');
+		assert.equal(args.o, 'two');
+		assert.equal(args.n, 'three four');
+		assert.equal(args.e, 'val,val,val');
 	});
 	test('complex values', () => {
-		let result = blarg('-o ~`!@#$%^&*()-_+=:;{}[]123|\\/?456<>abcdef,.')
-		assert.equal(result.o, '~`!@#$%^&*()-_+=:;{}[]123|\\/?456<>abcdef,.');
+		let [ args ] = blargs('-o ~`!@#$%^&*()-_+=:;{}[]123|\\/?456<>abcdef,.')
+		assert.equal(args.o, '~`!@#$%^&*()-_+=:;{}[]123|\\/?456<>abcdef,.');
 	});
 });
 
 suite('positional arguments', () => {
 	test('single positional argument', () => {
-		let result = blarg('argument');
-		assert(result.$.length === 1);
-		assert.equal(result.$[0], 'argument');
+		let [ args, pos ] = blargs('argument');
+		assert(Array.isArray(pos));
+		assert(pos.length === 1);
+		assert.equal(pos[0], 'argument');
 	});
 	test('multiple positional arguments', () => {
-		let result = blarg('argument1 argument2 argument3');
-		assert(result.$.length === 3);
-		assert.equal(result.$[0], 'argument1');
-		assert.equal(result.$[1], 'argument2');
-		assert.equal(result.$[2], 'argument3');
+		let [ args, pos ] = blargs('argument1 argument2 argument3');
+		assert(Array.isArray(pos));
+		assert(pos.length === 3);
+		assert.equal(pos[0], 'argument1');
+		assert.equal(pos[1], 'argument2');
+		assert.equal(pos[2], 'argument3');
 	});
 });
 
 suite('subargs', () => {
 	test('spaces, no positionals', () => {
-		let result = blarg('-t [ -n -e --long=short ]');
-		assert(typeof result.t == 'object');
-		assert.isTrue(result.t.n);
-		assert.isTrue(result.t.e);
-		assert.equal(result.t.long, 'short');
+		let [ args ] = blargs('-t [ -n -e --long=short ]');
+		assert(Array.isArray(args.t));
+		let [ targs ] = args.t;
+		assert.isTrue(targs.n);
+		assert.isTrue(targs.e);
+		assert.equal(targs.long, 'short');
 	});
 	test('spaces, positionals', () => {
-		let result = blarg('-t [ one -n -e --long=short two ]');
-		assert(typeof result.t == 'object');
-		assert.isTrue(result.t.n);
-		assert.isTrue(result.t.e);
-		assert.equal(result.t.long, 'short');
-		assert(result.t.$.length === 2);
-		assert.equal(result.t.$[0], 'one');
-		assert.equal(result.t.$[1], 'two');
+		let [ args ] = blargs('-t [ one -n -e --long=short two ]');
+		assert(Array.isArray(args.t));
+		let [ targs, tpos ] = args.t;
+		assert.isTrue(targs.n);
+		assert.isTrue(targs.e);
+		assert.equal(targs.long, 'short');
+		assert(Array.isArray(tpos));
+		assert(tpos.length === 2);
+		assert.equal(tpos[0], 'one');
+		assert.equal(tpos[1], 'two');
 	});
 	test('no spaces, no positionals', () => {
-		let result = blarg('-t [-n -e --long=short]');
-		assert(typeof result.t == 'object');
-		assert.isTrue(result.t.n);
-		assert.isTrue(result.t.e);
-		assert.equal(result.t.long, 'short');
+		let [ args ] = blargs('-t [-n -e --long=short]');
+		assert(Array.isArray(args.t));
+		let [ targs ] = args.t;
+		assert.isTrue(targs.n);
+		assert.isTrue(targs.e);
+		assert.equal(targs.long, 'short');
 	});
 	test('no spaces, positionals', () => {
-		let result = blarg('-t [one -n -e --long=short two]');
-		assert(typeof result.t == 'object');
-		assert.isTrue(result.t.n);
-		assert.isTrue(result.t.e);
-		assert.equal(result.t.long, 'short');
-		assert(result.t.$.length === 2);
-		assert.equal(result.t.$[0], 'one');
-		assert.equal(result.t.$[1], 'two');
+		let [ args ] = blargs('-t [one -n -e --long=short two]');
+		assert(Array.isArray(args.t));
+		let [ targs, tpos ] = args.t;
+		assert.isTrue(targs.n);
+		assert.isTrue(targs.e);
+		assert.equal(targs.long, 'short');
+		assert(Array.isArray(tpos));
+		assert(tpos.length === 2);
+		assert.equal(tpos[0], 'one');
+		assert.equal(tpos[1], 'two');
 	});
 	test('no spaces, end in assignment/value', () => {
-		let result = blarg('-t [-new pos --long=short]');
-		assert(typeof result.t == 'object');
-		assert.isTrue(result.t.n);
-		assert.isTrue(result.t.e);
-		assert.isTrue(result.t.w);
-		assert(result.t.$.length === 1);
-		assert.equal(result.t.$[0], 'pos');
-		assert.equal(result.t.long, 'short');
+		let [ args ] = blargs('-t [-new pos --long=short]');
+		assert(Array.isArray(args.t));
+		let [ targs, tpos ] = args.t;
+		assert.isTrue(targs.n);
+		assert.isTrue(targs.e);
+		assert.isTrue(targs.w);
+		assert(Array.isArray(tpos));
+		assert(tpos.length === 1);
+		assert.equal(tpos[0], 'pos');
+		assert.equal(targs.long, 'short');
 	});
 	test('mixed spaces front, end in assignment/value', () => {
-		let result = blarg('-t [ -new pos --long=short]');
-		assert(typeof result.t == 'object');
-		assert.isTrue(result.t.n);
-		assert.isTrue(result.t.e);
-		assert.isTrue(result.t.w);
-		assert(result.t.$.length === 1);
-		assert.equal(result.t.$[0], 'pos');
-		assert.equal(result.t.long, 'short');
+		let [ args ] = blargs('-t [ -new pos --long=short]');
+		assert(Array.isArray(args.t));
+		let [ targs, tpos ] = args.t;
+		assert.isTrue(targs.n);
+		assert.isTrue(targs.e);
+		assert.isTrue(targs.w);
+		assert(Array.isArray(tpos));
+		assert(tpos.length === 1);
+		assert.equal(tpos[0], 'pos');
+		assert.equal(targs.long, 'short');
 	});
 	test('mixed spaces tail, end in assignment/value', () => {
-		let result = blarg('-t [-new pos --long=short ]');
-		assert(typeof result.t == 'object');
-		assert.isTrue(result.t.n);
-		assert.isTrue(result.t.e);
-		assert.isTrue(result.t.w);
-		assert(result.t.$.length === 1);
-		assert.equal(result.t.$[0], 'pos');
-		assert.equal(result.t.long, 'short');
+		let [ args ] = blargs('-t [-new pos --long=short ]');
+		assert(Array.isArray(args.t));
+		let [ targs, tpos ] = args.t;
+		assert.isTrue(targs.n);
+		assert.isTrue(targs.e);
+		assert.isTrue(targs.w);
+		assert(Array.isArray(tpos));
+		assert(tpos.length === 1);
+		assert.equal(tpos[0], 'pos');
+		assert.equal(targs.long, 'short');
 	});
 	test('sub-subargs depth 2', () => {
-		let result = blarg('-z [ -Z [ -z ] ]');
-		assert(typeof result.z == 'object');
-		assert(typeof result.z.Z == 'object');
-		assert.isTrue(result.z.Z.z);
+		let [ args ] = blargs('-z [ -Z [ -z ] ]');
+		assert(Array.isArray(args.z));
+		assert(Array.isArray(args.z[0].Z));
+		assert.isTrue(args.z[0].Z[0].z);
 	});
 	test('sub-subargs depth 3', () => {
-		let result = blarg('-z [ sub1 -Z [ sub2 -z [ sub3 -Z ] ] ]');
-		assert(typeof result.z == 'object');
-		assert(typeof result.z.Z == 'object');
-		assert(typeof result.z.Z.z == 'object');
-		assert.isTrue(result.z.Z.z.Z);
-		assert.equal(result.z.$[0], 'sub1');
-		assert.equal(result.z.Z.$[0], 'sub2');
-		assert.equal(result.z.Z.z.$[0], 'sub3');
+		let [ args ] = blargs('-z [ sub1 -Z [ sub2 -z [ sub3 -Z ] ] ]');
+		assert(Array.isArray(args.z));
+		assert(Array.isArray(args.z[0].Z));
+		assert(Array.isArray(args.z[0].Z[0].z));
+		assert.isTrue(args.z[0].Z[0].z[0].Z);
+		assert.equal(args.z[1][0], 'sub1');
+		assert.equal(args.z[0].Z[1][0], 'sub2');
+		assert.equal(args.z[0].Z[0].z[1][0], 'sub3');
 	});
 });
 
 suite('next-command arguments', () => {
 	test('next-command depth 1', () => {
-		let result = blarg('arg1 -- arg2 -x');
-		assert(Array.isArray(result['--']));
-		assert(result['--'].length === 1);
-		assert.equal(result.$[0], 'arg1');
-		assert.equal(result['--'][0].$[0], 'arg2');
-		assert.isTrue(result['--'][0].x);
+		let [ args, pos, next ] = blargs('arg1 -- arg2 -x');
+		assert(Array.isArray(next));
+		assert(next.length === 1);
+		assert.equal(pos[0], 'arg1');
+		assert.equal(next[0][1][0], 'arg2');
+		assert.isTrue(next[0][0].x);
 	});
 	test('next-command depth 2', () => {
-		let result = blarg('arg1 -- arg2 -x -- arg3 --end');
-		assert(Array.isArray(result['--']));
-		assert(result['--'].length === 2);
-		assert.equal(result.$[0], 'arg1');
-		assert.equal(result['--'][0].$[0], 'arg2');
-		assert.isTrue(result['--'][0].x);
-		assert.equal(result['--'][1].$[0], 'arg3');
-		assert.isTrue(result['--'][1].end);
+		let [ args, pos, next ] = blargs('arg1 -- arg2 -x -- arg3 --end');
+		assert(Array.isArray(next));
+		assert(next.length === 2);
+		assert.equal(pos[0], 'arg1');
+		assert.equal(next[0][1][0], 'arg2');
+		assert.isTrue(next[0][0].x);
+		assert.equal(next[1][1][0], 'arg3');
+		assert.isTrue(next[1][0].end);
 	});
 });
 
 suite('error recovery', () => {
 	test('short-argument with = assignment', () => {
-		let result = blarg('-Z=two');
-		assert.equal(result.Z, 'two');
+		let [ args ] = blargs('-Z=two');
+		assert.equal(args.Z, 'two');
 	});
 	test('dangling subargs', () => {
-		let result = blarg('-Z [ -z pos');
-		assert(typeof result.Z == 'object');
-		assert.equal(result.Z.z, 'pos');
+		let [ args ] = blargs('-Z [ -z pos');
+		assert(Array.isArray(args.Z));
+		assert.equal(args.Z[0].z, 'pos');
 	});
 	test('dangling double quotes', () => {
-		let result = blarg('-Z "value');
-		assert.equal(result.Z, 'value');
+		let [ args ] = blargs('-Z "value');
+		assert.equal(args.Z, 'value');
 	});
 	test('dangling single quotes', () => {
-		let result = blarg('-Z \'value');
-		assert.equal(result.Z, 'value');
+		let [ args ] = blargs('-Z \'value');
+		assert.equal(args.Z, 'value');
 	});
 	test('dangling double quote for quoted positional', () => {
-		let result = blarg('"value""');
-		assert(result.$.length === 1);
-		assert.equal(result.$[0], 'value');
+		let [ args, pos ] = blargs('"value""');
+		assert(pos.length === 1);
+		assert.equal(pos[0], 'value');
 	});
 	test('dangling single quote for quoted positional', () => {
-		let result = blarg('\'value\'\'');
-		assert(result.$.length === 1);
-		assert.equal(result.$[0], 'value');
+		let [ args, pos ] = blargs('\'value\'\'');
+		assert(pos.length === 1);
+		assert.equal(pos[0], 'value');
 	});
 });
 
 suite('mixed cases', () => {
 	test('next-command and subargs', () => {
-		let result = blarg('-Z [ sub1 -x ] -- next1 -Z [ sub2 -no-x ]');
-		assert.deepEqual(result, {
-			$: [],
-			Z: {
-				$: ['sub1'],
-				x: true
-			},
-			'--': [
-				{
-					$: ['next1'],
-					Z: {
-						$: ['sub2'],
-						x: false
-					}
-				}
+		let [ args,, next ] = blargs('-Z [ sub1 -x ] -- next1 -Z [ sub2 -no-x ]');
+		assert.deepEqual(args, {
+			Z: [
+				{x: true},
+				['sub1'],
+				undefined
 			]
 		});
+		assert.deepEqual(next, [
+			[
+				{Z: [
+					{x: false},
+					['sub2'],
+					undefined
+				]},
+				['next1'],
+				undefined
+			]
+		]);
 	});
 });

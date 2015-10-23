@@ -1,7 +1,5 @@
 'use strict';
 
-import Arguments from './Arguments';
-
 let stack;
 let nexts;
 
@@ -13,14 +11,14 @@ export default {
 	/*
 	*/
 	reset () {
-		stack = [new Arguments()];
-		nexts = undefined;
+		stack = [[{},undefined,undefined]];
+		nexts = null;
 	},
 
 	/*
 	*/
 	push () {
-		let ret = new Arguments();
+		let ret = [{},undefined,undefined];
 		stack.unshift(ret);
 		return ret;
 	},
@@ -38,8 +36,9 @@ export default {
 			let next = this.pop();
 			nexts.pop();
 			let ctx = context();
-			if (!ctx['--']) ctx['--'] = [];
-			ctx['--'].push(next);
+			let seq = ctx[2];
+			if (!seq) seq = ctx[2] = [];
+			seq.push(next);
 		} else {
 			nexts = [];
 		}
@@ -59,19 +58,22 @@ export default {
 	*/
 	positional (value) {
 		if (value === undefined) return;
-		context().$.push(value);
+		let ctx = context();
+		let pos = ctx[1];
+		if (!pos) pos = ctx[1] = [];
+		pos.push(value);
 	},
 
 	/*
 	*/
 	boolean (name, value) {
-		context()[name] = value;
+		context()[0][name] = value;
 	},
 
 	/*
 	*/
 	assign (name, value) {
 		if (value === undefined) return;
-		context()[name] = value;
+		context()[0][name] = value;
 	}
 };
