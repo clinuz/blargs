@@ -1,20 +1,17 @@
 {
   "name": "blargs",
   "version": "0.0.1",
-  "description": "A (very, very) simple command-line argument parser to be consumed by other tools.",
+  "description": "Versatile argument parser with command-line test utility.",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha",
-    "prepublish": "babel --optional runtime -d lib src && babel test/index.es6 > test/index.js && jison -o lib/parser.js src/parser.jison"
+    "prepublish": "babel -d lib src && babel test/index.es6 > test/index.js && jison -o lib/parser.js src/parser.jison"
   },
   "bin": {
     "blargs": "lib/blargs.js"
   },
   "author": "W. Cole Davis <wcole.davis@gmail.com>",
   "license": "MIT",
-  "dependencies": {
-    "babel-runtime": "^5.8.25"
-  },
   "devDependencies": {
     "babel": "^5.8.23",
     "chai": "^3.4.0",
