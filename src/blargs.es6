@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 'use strict';
 
-import blarg from '../';
+import blargs from '../';
 import util from 'util';
 
-console.log(util.inspect(blarg(process.argv.slice(2)), null, 10));
+console.log(util.inspect(blargs(process.argv.slice(2)), null, 10));
