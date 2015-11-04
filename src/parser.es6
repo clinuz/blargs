@@ -66,6 +66,14 @@ function scanSubargs (args) {
 	return subs;
 }
 
+function assign (target, key, value) {
+	let exst = target[key];
+	if (exst) {
+		if (!Array.isArray(exst)) exst = target[key] = [exst];
+		exst.push(value);
+	} else target[key] = value;
+}
+
 export default function parse (args) {
 
 	let assigned = {};
@@ -97,16 +105,16 @@ export default function parse (args) {
 						args.unshift(next.slice(1));
 						next = scanSubargs(args);
 					}
-					assigned[arg[1]] = parse(next);
-				} else assigned[arg[1]] = next;
+					assign(assigned, arg[1], parse(next));
+				} else assign(assigned, arg[1], next);
 			} else {
-				assigned[arg[1]] = true;
+				assign(assigned, arg[1], true);
 			}
 			break;
 		case Types.SHORTASSIGN:
 			// the value being assigned should be included
 			[ arg, next ] = assignments(arg.slice(1));
-			assigned[arg] = next;
+			assign(assigned, arg, next);
 			break;
 		case Types.SHORTASSIGNSUB:
 			[ arg, next ] = assignments(arg.slice(1));
@@ -115,22 +123,22 @@ export default function parse (args) {
 				args.unshift(next.slice(1));
 				next = scanSubargs(args);
 			}
-			assigned[arg] = parse(next);
+			assign(assigned, arg, parse(next));
 			break;
 		case Types.SHORTMULTI:
 			// each of these will be boolean true values
-			for (i = 1; i < arg.length; ++i) assigned[arg[i]] = true;
+			for (i = 1; i < arg.length; ++i) assign(assigned, arg[i], true);
 			break;
 		case Types.SHORTNOMULTI:
 			// each of these will be boolean false values
-			for (i = 4; i < arg.length; ++i) assigned[arg[i]] = false;
+			for (i = 4; i < arg.length; ++i) assign(assigned, arg[i], false);
 			break;
 		case Types.SHORTNO:
 			// will be boolean false
-			assigned[arg[4]] = false;
+			assign(assigned, arg[4], false);
 			break;
 		case Types.LONG:
-			assigned[arg.slice(2)] = true;
+			assign(assigned, arg.slice(2), true);
 			break;
 		case Types.LONGASSIGNSUB:
 			[ arg, next ] = assignments(arg.slice(2));
@@ -139,14 +147,14 @@ export default function parse (args) {
 				args.unshift(next.slice(1));
 				next = scanSubargs(args);
 			}
-			assigned[arg] = parse(next);
+			assign(assigned, arg, parse(next));
 			break;
 		case Types.LONGASSIGN:
 			[ arg, next ] = assignments(arg.slice(2));
-			assigned[arg] = next;
+			assign(assigned, arg, next);
 			break;
 		case Types.LONGNO:
-			assigned[arg.slice(5)] = false;
+			assign(assigned, arg.slice(5), false);
 			break;
 		case Types.NEXTEXPR:
 			nextexprs = parse(args);

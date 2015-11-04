@@ -275,4 +275,10 @@ suite('mixed cases', () => {
 		assert(args);
 		assert.isTrue(args.z);
 	});
+	test('multiples of same arguments', () => {
+		let [ args ] = blargs('-z -z -no-z');
+		assert(args);
+		assert(Array.isArray(args.z));
+		assert.deepEqual(args.z, [true,true,false]);
+	});
 });
