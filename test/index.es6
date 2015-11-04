@@ -190,21 +190,25 @@ suite('subargs', () => {
 suite('next-command arguments', () => {
 	test('next-command depth 1', () => {
 		let [ args, pos, next ] = blargs('arg1 -- arg2 -x');
-		assert(Array.isArray(next));
-		assert(next.length === 1);
+		assert(Object.keys(args).length === 0);
 		assert.equal(pos[0], 'arg1');
-		assert.equal(next[0][1][0], 'arg2');
-		assert.isTrue(next[0][0].x);
+		assert(next);
+		[ args, pos ] = next;
+		assert.equal(pos[0], 'arg2');
+		assert.isTrue(args.x);
 	});
 	test('next-command depth 2', () => {
 		let [ args, pos, next ] = blargs('arg1 -- arg2 -x -- arg3 --end');
-		assert(Array.isArray(next));
-		assert(next.length === 2);
+		assert(Object.keys(args).length === 0);
 		assert.equal(pos[0], 'arg1');
-		assert.equal(next[0][1][0], 'arg2');
-		assert.isTrue(next[0][0].x);
-		assert.equal(next[1][1][0], 'arg3');
-		assert.isTrue(next[1][0].end);
+		assert(next);
+		[ args, pos, next ] = next;
+		assert.equal(pos[0], 'arg2');
+		assert.isTrue(args.x);
+		assert(next);
+		[ args, pos ] = next;
+		assert.isTrue(args.end);
+		assert.equal(pos[0], 'arg3');
 	});
 });
 
@@ -245,19 +249,30 @@ suite('mixed cases', () => {
 			Z: [
 				{x: true},
 				['sub1'],
-				undefined
+				null
 			]
 		});
 		assert.deepEqual(next, [
-			[
-				{Z: [
+			{
+				Z: [
 					{x: false},
 					['sub2'],
-					undefined
-				]},
-				['next1'],
-				undefined
-			]
+					null
+				]
+			},
+			['next1'],
+			null
 		]);
+	});
+	test('next-command in subargs', () => {
+		let [ args, pos, next ] = blargs('-Z [-- next -z]');
+		assert(args);
+		assert(args.Z);
+		[ args, pos, next ] = args.Z;
+		[ args, pos, next ] = next;
+		assert(pos);
+		assert.equal(pos[0], 'next');
+		assert(args);
+		assert.isTrue(args.z);
 	});
 });

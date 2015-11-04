@@ -1,6 +1,6 @@
 'use strict';
 
-import { parse, parseString } from './parser';
+import { default as parse, parseString } from './parser';
 
 export default function (args) {
 	args = args || process.argv.slice(2);

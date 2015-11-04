@@ -105,13 +105,11 @@ export default function parse (args) {
 			break;
 		case Types.SHORTASSIGN:
 			// the value being assigned should be included
-			next = arg.split('=');
-			assigned[next[0]] = next[1];
+			[ arg, next ] = assignments(arg.slice(1));
+			assigned[arg] = next;
 			break;
 		case Types.SHORTASSIGNSUB:
-			next = arg.split('=');
-			arg = next[0][1];
-			next = next[1];
+			[ arg, next ] = assignments(arg.slice(1));
 			if (next == '[') next = scanSubargs(args);
 			else {
 				args.unshift(next.slice(1));
@@ -129,15 +127,13 @@ export default function parse (args) {
 			break;
 		case Types.SHORTNO:
 			// will be boolean false
-			assigned[arg[1]] = false;
+			assigned[arg[4]] = false;
 			break;
 		case Types.LONG:
 			assigned[arg.slice(2)] = true;
 			break;
 		case Types.LONGASSIGNSUB:
-			next = arg.split('=');
-			arg = next[0].slice(2);
-			next = next[1];
+			[ arg, next ] = assignments(arg.slice(2));
 			if (next == '[') next = scanSubargs(args);
 			else {
 				args.unshift(next.slice(1));
@@ -146,9 +142,7 @@ export default function parse (args) {
 			assigned[arg] = parse(next);
 			break;
 		case Types.LONGASSIGN:
-			next = arg.split('=');
-			arg = next[0].slice(2);
-			next = next[1];
+			[ arg, next ] = assignments(arg.slice(2));
 			assigned[arg] = next;
 			break;
 		case Types.LONGNO:
@@ -195,14 +189,52 @@ function typeOf (arg) {
 	return type;
 }
 
+function assignments (arg) {
+	let idx = arg.indexOf('=');
+	return [arg.slice(0, idx), arg.slice(idx + 1)];
+}
+
 function parseString (str) {
 	if (typeof str != 'string' || !str) return [];
 
 	let args = [];
 	let input = str.split('');
+	let arg = '';
 	for (;;) {
-		
+		let ch = input.shift();
+		if (ch == null) break;
+		if (ch != ' ') {
+			if (ch == '"') {
+				for (;;) {
+					ch = input.shift();
+					if (ch == null) break;
+					else if (ch == '"' && (!arg || (arg && arg[arg.length - 1] != '\\'))) break;
+					else arg += ch;
+				}
+				if (arg.length) {
+					args.push(arg);
+					arg = '';
+				}
+			} else if (ch == '\'') {
+				for (;;) {
+					ch = input.shift();
+					if (ch == null) break;
+					else if (ch == '\'' && (!arg || (arg && arg[arg.length - 1] != '\\'))) break;
+					else arg += ch;
+				}
+				if (arg.length) {
+					args.push(arg);
+					arg = '';
+				}
+			} else arg += ch;
+		} else {
+			args.push(arg);
+			arg = '';
+		}
 	}
+	if (arg.length) args.push(arg);
+	
+	return args;
 }
 
-export parseString;
+export { parseString };
