@@ -251,9 +251,6 @@ Please report issues and feature requests. Pull Requests welcome.
 <br/>
 <br/>
 <br/>
-<br/>
-<br/>
-<br/>
 
 
 The MIT License (MIT)
