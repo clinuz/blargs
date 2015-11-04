@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/clinuz/blargs.svg?branch=master)](https://travis-ci.org/clinuz/blargs)
 # blargs
 _(think the expression "BLARG" munged with "args")_
 ### A very, very simple and convention-based argument parser
