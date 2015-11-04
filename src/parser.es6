@@ -68,10 +68,17 @@ function scanSubargs (args) {
 
 function assign (target, key, value) {
 	let exst = target[key];
+	value = checkValue(value);
 	if (exst) {
 		if (!Array.isArray(exst)) exst = target[key] = [exst];
 		exst.push(value);
 	} else target[key] = value;
+}
+
+function checkValue (value) {
+	if (value == 'true') return true;
+	else if (value == 'false') return false;
+	else return value;
 }
 
 export default function parse (args) {

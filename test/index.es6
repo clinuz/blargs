@@ -281,4 +281,11 @@ suite('mixed cases', () => {
 		assert(Array.isArray(args.z));
 		assert.deepEqual(args.z, [true,true,false]);
 	});
+	test('convert false/true string to boolean', () => {
+		let [ args ] = blargs('-a true -b false --t1=true --t2=false');
+		assert.isTrue(args.a);
+		assert.isTrue(args.t1);
+		assert.isFalse(args.b);
+		assert.isFalse(args.t2);
+	});
 });
