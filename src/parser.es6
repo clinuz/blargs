@@ -49,23 +49,6 @@ function log (...args) {
 	if (debug) console.log(...args);
 }
 
-function scanSubargs (args) {
-	let subs = [], arg;
-	for (;;) {
-		arg = args.shift();
-		if (arg !== undefined) {
-			if (subclose.test(arg)) break;
-			else if (subclosed.test(arg)) {
-				subs.push(arg.trim().slice(0, -1));
-				break;
-			} else {
-				subs.push(arg);
-			}
-		} else break;
-	}
-	return subs;
-}
-
 function assign (target, key, value) {
 	let exst = target[key];
 	value = checkValue(value);
@@ -81,19 +64,32 @@ function checkValue (value) {
 	else return value;
 }
 
-export default function parse (args) {
+export default function parse (args, recursing) {
 
 	let assigned = {};
 	let positionals = [];
 	let nextexprs = null;
 
+	if (recursing) log('parse() recursing', args.length);
+
 	for (;;) {
 	
 		let arg = args.shift();
-		let type, next, nexttype, i;
+		let type, next, nexttype, i, end;
 		
 		if (arg == null) break;
 
+		if (recursing) {
+			if (subclose.test(arg)) {
+				log('parse() found tail subargs bracket, ending', arg);
+				break;
+			} else if (subclosed.test(arg)) {
+				log('parse() found tail subargs bracket in argument, will end', arg);
+				end = true;
+				arg = arg.trim().slice(0, -1);
+			}
+		}
+		
 		type = typeOf(arg);
 		
 		// @todo a more intelligent system to not waste work like this
@@ -107,12 +103,21 @@ export default function parse (args) {
 				next = args.shift();
 				if (subopen.test(next)) {
 					// convoluted case where there was a space and an open sub argument expression
-					if (next == '[') next = scanSubargs(args);
+					if (next == '[') next = parse(args, true);
 					else {
 						args.unshift(next.slice(1));
-						next = scanSubargs(args);
+						next = parse(args, true);
 					}
-					assign(assigned, arg[1], parse(next));
+					assign(assigned, arg[1], next);
+				// special case since we do lookahead here we want to make sure we interpret
+				// subargs end bracket correctly
+				} else if (recursing && subclose.test(next)) {
+					// we can ignore it but the short that we found must be assigned as flag
+					assign(assigned, arg[1], true);
+					end = true;
+				} else if (recursing && subclosed.test(next)) {
+					end = true;
+					assign(assigned, arg[1], next.trim().slice(0, -1));
 				} else assign(assigned, arg[1], next);
 			} else {
 				assign(assigned, arg[1], true);
@@ -125,12 +130,12 @@ export default function parse (args) {
 			break;
 		case Types.SHORTASSIGNSUB:
 			[ arg, next ] = assignments(arg.slice(1));
-			if (next == '[') next = scanSubargs(args);
+			if (next == '[') next = parse(args, true);
 			else {
 				args.unshift(next.slice(1));
-				next = scanSubargs(args);
+				next = parse(args, true);
 			}
-			assign(assigned, arg, parse(next));
+			assign(assigned, arg, next);
 			break;
 		case Types.SHORTMULTI:
 			// each of these will be boolean true values
@@ -149,12 +154,12 @@ export default function parse (args) {
 			break;
 		case Types.LONGASSIGNSUB:
 			[ arg, next ] = assignments(arg.slice(2));
-			if (next == '[') next = scanSubargs(args);
+			if (next == '[') next = parse(args, true);
 			else {
 				args.unshift(next.slice(1));
-				next = scanSubargs(args);
+				next = parse(args, true);
 			}
-			assign(assigned, arg, parse(next));
+			assign(assigned, arg, next);
 			break;
 		case Types.LONGASSIGN:
 			[ arg, next ] = assignments(arg.slice(2));
@@ -164,16 +169,21 @@ export default function parse (args) {
 			assign(assigned, arg.slice(5), false);
 			break;
 		case Types.NEXTEXPR:
-			nextexprs = parse(args);
+			nextexprs = parse(args, recursing);
+			end = true;
 			break;
 		case Types.POSITIONAL:
 		case Types.UNKNOWN:
 			positionals.push(arg);
 			break;
 		}
-	
+		if (end) {
+			log('parse() ending marker, breaking loop');
+			break;
+		}
 	}
 
+	log('parse() returning');
 	return [
 		assigned,
 		positionals.length ? positionals : null,

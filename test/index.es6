@@ -243,7 +243,7 @@ suite('error recovery', () => {
 });
 
 suite('mixed cases', () => {
-	test('next-command and subargs', () => {
+	test('next-arguments and subargs', () => {
 		let [ args,, next ] = blargs('-Z [ sub1 -x ] -- next1 -Z [ sub2 -no-x ]');
 		assert.deepEqual(args, {
 			Z: [
@@ -264,7 +264,7 @@ suite('mixed cases', () => {
 			null
 		]);
 	});
-	test('next-command in subargs', () => {
+	test('next-arguments in subargs', () => {
 		let [ args, pos, next ] = blargs('-Z [-- next -z]');
 		assert(args);
 		assert(args.Z);
@@ -287,5 +287,25 @@ suite('mixed cases', () => {
 		assert.isTrue(args.t1);
 		assert.isFalse(args.b);
 		assert.isFalse(args.t2);
+	});
+	test('next-arguments in subargs and after (testing recursion)', () => {
+		let [ args, pos, next ] = blargs('--arg=[ arg -- -abc --arg ] -- -abc --arg');
+		assert.deepEqual(args, {
+			arg: [
+				{},
+				['arg'],
+				[
+					{a: true, b: true, c: true, arg: true},
+					null,
+					null
+				]
+			]
+		});
+		assert(pos === null);
+		assert.deepEqual(next, [
+			{a: true, b: true, c: true, arg: true},
+			null,
+			null
+		]);
 	});
 });
