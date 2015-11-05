@@ -2,6 +2,17 @@
   "name": "blargs",
   "version": "0.0.9",
   "description": "Versatile argument parser with command-line test utility.",
+  "keywords": [
+    "command-line",
+    "cli",
+    "command line",
+    "arguments",
+    "argument parser",
+    "parser",
+    "args",
+    "tool",
+    "tools"
+  ],
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha",
@@ -9,6 +20,10 @@
   },
   "bin": {
     "blargs": "lib/blargs.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clinuz/blargs"
   },
   "author": "W. Cole Davis <wcole.davis@gmail.com>",
   "license": "MIT",
