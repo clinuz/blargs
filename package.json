@@ -1,6 +1,6 @@
 {
   "name": "blargs",
-  "version": "0.0.1",
+  "version": "0.0.9",
   "description": "Versatile argument parser with command-line test utility.",
   "main": "lib/index.js",
   "scripts": {
