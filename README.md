@@ -2,7 +2,7 @@
 # blargs
 _(think the expression "BLARG" munged with "args")_
 
-Check the [changelog](CHANGES.md) for notes on what has been done between releases.
+Check the [changelog](https://github.com/clinuz/blargs/blob/master/CHANGELOG.md) for notes on what has been done between releases.
 
 ### Versatile argument parser with command-line test utility
 
