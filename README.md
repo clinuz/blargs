@@ -1,10 +1,13 @@
 [![Build Status](https://travis-ci.org/clinuz/blargs.svg?branch=master)](https://travis-ci.org/clinuz/blargs)
 # blargs
 _(think the expression "BLARG" munged with "args")_
-### A very, very simple and convention-based argument parser
+
+Check the [changelog](CHANGES.md) for notes on what has been done between releases.
+
+### Versatile argument parser with command-line test utility
 
 
-While it is not my general goal to re-create something that has been exhaustively developed and engineered, I often found myself needing features that were not consistently available from a single source. _blargs_ is an attempt to create a simple, reliable, performant and consistent argument parser that can be used as-is or wrapped by other utilities.
+While it is not my general goal to re-create something that has been exhaustively developed and engineered, I often find myself needing features that are not consistently available from a single source. _blargs_ is an attempt to create a simple, reliable, performant and consistent argument parser that can be used as-is or wrapped by other utilities.
 
 While this project is _vastly_ different in implementation, I would like to give a shout-out to some projects I have used over the years that influenced some of the features I have added:
 
@@ -44,7 +47,7 @@ Wondering what that output means and how the hell it's useful? [Read about progr
 - Treats command-line arguments as a context-free grammar (an un-opinionated language)
 - Handles _strings_ and _arrays_ of arguments
 - Performs quite well
-- Returns an ES6 destructuring iterable (compatible with ES5 by array index) which ensures all keys on named-arguments object are valid (see below)
+- Returns an ES6 destructurable iterable (compatible with ES5 by array index) which ensures all keys on named-arguments object are valid (see below)
 - Comes with a useful command-line argument testing utility so you don't need to write your own just to see how it will break down your arguments
 
 
@@ -126,7 +129,7 @@ Sometimes it is useful to specify multiple ordered commands. These _next-argumen
 
 #### Programmatic Usage
 
-This tool is actually designed to work with another project, [vlargs](https://github.com/clinuz/vlargs), a command line validator and sanitizer. However, there are plenty of reasons you may want to use _blargs_ by itself.
+Internally (and _soon, hopefully_ to be publicly available) _blargs_ is wrapped by an argument validator and sanitizer (another project of mine). However, there are plenty of reasons you may want to use _blargs_ by itself.
 
 Let me take a second to describe how to use it _and then I will explain why it returns what it does_.
 

@@ -43,6 +43,10 @@ const Types = {
 	UNKNOWN       : Symbol('UNKNOWN')
 };
 
+const Symbols = {
+	BLARGS        : Symbol('BLARGS')
+};
+
 const debug = false;
 
 function log (...args) {
@@ -53,7 +57,7 @@ function assign (target, key, value) {
 	let exst = target[key];
 	value = checkValue(value);
 	if (exst) {
-		if (!Array.isArray(exst)) exst = target[key] = [exst];
+		if (!Array.isArray(exst) || exst[Symbols.BLARGS] === true) exst = target[key] = [exst];
 		exst.push(value);
 	} else target[key] = value;
 }
@@ -65,6 +69,11 @@ function checkValue (value) {
 }
 
 export default function parse (args, recursing) {
+
+	// for sanity, if somehow an array gets passed in that is a result of a prior parse attempt
+	// simply return it as-is
+	if (Array.isArray(args) && args[Symbols.BLARGS] === true) return args;
+	if (!recursing) args = sanitize(args);
 
 	let assigned = {};
 	let positionals = [];
@@ -184,11 +193,19 @@ export default function parse (args, recursing) {
 	}
 
 	log('parse() returning');
-	return [
+	let result = [
 		assigned,
 		positionals.length ? positionals : null,
 		nextexprs
 	];
+	// we mark the array as having been a parsed-value-return as there are circumstances where
+	// this makes determining what type of array it is easier
+	// note that the better solution would have been to change the return type but that has more
+	// potential drawbacks by breaking compatibility, this should have no impact as it is a
+	// symbol you have to be looking for and is not enumerable
+	Object.defineProperty(result, Symbols.BLARGS, {value: true});
+	Object.freeze(result);
+	return result;
 }
 
 function typeOf (arg) {
@@ -262,4 +279,33 @@ function parseString (str) {
 	return args;
 }
 
-export { parseString };
+function sanitize (args) {
+	let sane = [];
+	// because of the way the arguments will have been parsed it is possible to have really
+	// tricky scenarios with the lookahead, so, for convenience, we attempt to avoid those
+	// scenarios by splitting arguments where necessary
+	for (let i = 0; i < args.length; ++i) {
+		let arg = args[i];
+		if (/\]{2,}/g.test(arg)) {
+			let p = arg.indexOf(']');
+			if (p === 0) {
+				sane.push(']');
+				p++;
+			} else sane.push(arg.slice(0, p));
+			for (; p < arg.length; ++p) {
+				if (arg[p] == ']') {
+					sane.push(']');
+				}
+				else break;
+			}
+			if (p < arg.length - 1) {
+				sane.push(arg.slice(p));
+			}
+		} else {
+			sane.push(arg);
+		}
+	}
+	return sane;
+}
+
+export { parseString, Symbols };

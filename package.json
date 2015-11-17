@@ -1,22 +1,26 @@
 {
   "name": "blargs",
-  "version": "0.1.0",
-  "description": "Versatile argument parser with command-line test utility.",
+  "version": "0.2.0",
+  "description": "Versatile argument parser with command-line test utility",
   "keywords": [
     "command-line",
     "cli",
     "command line",
     "arguments",
     "argument parser",
+    "arguments parser",
     "parser",
     "args",
     "tool",
-    "tools"
+    "tools",
+    "options",
+    "options parser",
+    "option parser"
   ],
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha",
-    "prepublish": "babel -d lib src && babel test/index.es6 > test/index.js"
+    "prepublish": "babel -d lib src && babel -x .es6 test -d test"
   },
   "bin": {
     "blargs": "lib/blargs.js"
@@ -28,8 +32,9 @@
   "author": "W. Cole Davis <wcole.davis@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "babel": "^5.8.23",
-    "chai": "^3.4.0",
+    "babel-cli": "^6.1.18",
+    "babel-preset-es2015": "^6.1.18",
+    "chai": "^3.4.1",
     "mocha": "^2.3.3"
   }
 }

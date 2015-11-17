@@ -176,7 +176,7 @@ suite('subargs', () => {
 		assert.isTrue(args.z[0].Z[0].z);
 	});
 	test('sub-subargs depth 3', () => {
-		let [ args ] = blargs('-z [ sub1 -Z [ sub2 -z [ sub3 -Z ] ] ]');
+		let [ args ] = blargs('-z [sub1 -Z [sub2 -z [sub3 -Z]]]');
 		assert(Array.isArray(args.z));
 		assert(Array.isArray(args.z[0].Z));
 		assert(Array.isArray(args.z[0].Z[0].z));
